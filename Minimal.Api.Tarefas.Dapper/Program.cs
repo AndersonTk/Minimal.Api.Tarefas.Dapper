@@ -1,17 +1,12 @@
-using Microsoft.AspNetCore.Authorization;
+using AuthService.Client.Extensions;
 using Minimal.Api.Tarefas.Dapper.Endpoints;
 using Minimal.Api.Tarefas.Dapper.Extentions;
-using Minimal.Api.Tarefas.Dapper.Extentions.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddPersistence();
 
-builder.Services.AddAuthenticationJwt(builder.Configuration);
-builder.Services.AddAuthorization();
-
-builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
-builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+builder.Services.AddAuthServiceAuthentication(builder.Configuration);
 
 var app = builder.Build();
 

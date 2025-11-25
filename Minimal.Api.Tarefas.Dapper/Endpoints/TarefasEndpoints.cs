@@ -1,4 +1,5 @@
-﻿using Dapper.Contrib.Extensions;
+﻿using AuthService.Client.Extensions;
+using Dapper.Contrib.Extensions;
 using Minimal.Api.Tarefas.Dapper.Models;
 using System;
 using static Minimal.Api.Tarefas.Dapper.Data.TarefaContext;
@@ -9,7 +10,7 @@ public static class TarefasEndpoints
 {
     public static void MapTarefasEndpoints(this WebApplication app)
     {
-        app.MapGet("/", () => $"Bem vindo a API de Tarefas {DateTime.Now}").RequireAuthorization("tarefas:owner");
+        app.MapGet("/", () => $"Bem vindo a API de Tarefas {DateTime.Now}").RequirePermission("owner");
 
         app.MapGet("/tarefas", async (GetConnection connectionGetter) =>
         {
@@ -20,14 +21,14 @@ public static class TarefasEndpoints
                 return Results.NoContent();
 
             return Results.Ok(tarefas);
-        }).RequireAuthorization("tarefas:view");
+        }).RequirePermission("view");
 
         app.MapGet("/tarefas/{id}", async (int id, GetConnection connectionGetter) =>
         {
             using var con = await connectionGetter();
 
             return con.Get<Tarefa>(id) is Tarefa tarefa ? Results.Ok(tarefa) : Results.NotFound("Tarefa não encontrada"); ;
-        }).RequireAuthorization("tarefas:view");
+        }).RequirePermission("view");
 
         app.MapPost("/tarefas", async (Tarefa tarefa, GetConnection connectionGetter) =>
         {
@@ -35,7 +36,7 @@ public static class TarefasEndpoints
             var id = con.Insert(tarefa);
 
             return Results.Created($"/tarefas/{id}", tarefa);
-        }).RequireAuthorization("tarefas:create");
+        }).RequirePermission("create");
 
         app.MapPut("/tarefas", async (Tarefa tarefa, GetConnection connectionGetter) =>
         {
@@ -43,7 +44,7 @@ public static class TarefasEndpoints
             var id = con.Update(tarefa);
 
             return Results.Ok();
-        });
+        }).RequirePermission("update");
 
         app.MapDelete("/tarefas/{id}", async (int id, GetConnection connectionGetter) =>
         {
@@ -56,6 +57,6 @@ public static class TarefasEndpoints
             con.Delete<Tarefa>(tarefa);
 
             return Results.Ok(tarefa);
-        });
+        }).RequirePermission("delete");
     }
 }
